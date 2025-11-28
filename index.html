@@ -30,10 +30,9 @@
         }
     </script>
 
-    <!-- CRITICAL: Load React, ReactDOM, and Babel -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Load React and ReactDOM from Production CDNs (Minified) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <style>
       /* Custom scrollbar for aesthetic */
@@ -60,56 +59,18 @@
 <body>
     <div id="root"></div>
 
-    <!-- Application script block -->
-    <script type="text/babel">
-        const { useState, useEffect, useMemo, createElement, Fragment } = React;
+    <script type="module">
+        // Using React's global objects provided by the production CDNs
+        const { useState, useEffect, useMemo } = React;
         
-        // --- Mock Data with Realistic Image URLs (Simulating actual product photos) ---
-        const PRODUCTS = [
-            { id: "TPL-001", name: "Artisanal Ceramic Vase", price: 75.00, category: "HOME", rating: 4.9, 
-              imageUrl: "https://images.unsplash.com/photo-1549488806-a51b228f4f20?q=80&w=600&h=800&fit=crop&auto=format", 
-              material: "Hand-thrown Clay", origin: "Kumasi" },
-            
-            { id: "TPL-002", name: "Hand-Woven Sisal Basket", price: 35.00, category: "DECOR", rating: 4.5, 
-              imageUrl: "https://images.unsplash.com/photo-1558229986-e7e22138139e?q=80&w=600&h=800&fit=crop&auto=format", 
-              material: "Natural Sisal Fiber", origin: "Northern Region" },
-              
-            { id: "TPL-003", name: "Akua'ba Doll Carving", price: 90.00, category: "ART", rating: 5.0, 
-              imageUrl: "https://images.unsplash.com/photo-1588665725287-2f3b97b0a32e?q=80&w=600&h=800&fit=crop&auto=format", 
-              material: "Sankofa Wood", origin: "Ashanti Region" },
-              
-            { id: "TPL-006", name: "Kente Cloth Weave (Panel)", price: 180.00, category: "ART", rating: 5.0, 
-              imageUrl: "https://images.unsplash.com/photo-1629853920790-259207455d3f?q=80&w=600&h=800&fit=crop&auto=format", 
-              material: "Silk & Cotton", origin: "Bonwire" },
-            
-            { id: "TPL-004", name: "Shea Butter Soap Set", price: 25.00, category: "WELLNESS", rating: 4.7, 
-              imageUrl: "https://images.unsplash.com/photo-1600857908992-0692723326cc?q=80&w=600&h=800&fit=crop&auto=format", 
-              material: "Organic Shea & Cocoa", origin: "Accra" },
-              
-            { id: "TPL-005", name: "Indigo Tie-Dye Scarf", price: 55.00, category: "FASHION", rating: 4.8, 
-              imageUrl: "https://images.unsplash.com/photo-1546820257-8d077d85c477?q=80&w=600&h=800&fit=crop&auto=format", 
-              material: "Pure Cotton", origin: "Volta Region" },
-        ];
-
-        const CATEGORIES = ["ALL", "HOME", "DECOR", "ART", "WELLNESS", "FASHION"];
-
-        // --- Utilities ---
-        const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('en-GH', {
-                style: 'currency',
-                currency: 'GHS',
-                currencyDisplay: 'symbol'
-            }).format(amount).replace('GHS', '₵');
-        };
-
         // --- Inline SVG Icon Components (Lucide Icons adapted) ---
-        const Icon = ({ path, className, size = 20, stroke = 'currentColor', title = '', fill = 'none', ...props }) => (
-            createElement('svg', { 
+        const Icon = ({ path, className, size = 20, stroke = 'currentColor', title = '', ...props }) => (
+            React.createElement('svg', { 
                 xmlns: "http://www.w3.org/2000/svg", 
                 width: size, 
                 height: size, 
                 viewBox: "0 0 24 24", 
-                fill: fill, 
+                fill: "none", 
                 stroke: stroke, 
                 strokeWidth: "2", 
                 strokeLinecap: "round", 
@@ -117,8 +78,8 @@
                 className: className, 
                 ...props 
             },
-                title && createElement('title', null, title),
-                path.map((p, i) => createElement('path', { key: i, d: p }))
+                title && React.createElement('title', null, title),
+                path.map((p, i) => React.createElement('path', { key: i, d: p }))
             )
         );
 
@@ -132,7 +93,7 @@
             Icon({ path: ["m9 18 6-6-6-6"], size: 16, ...props })
         );
         const Star = (props) => (
-            Icon({ path: ["M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.53L12 17.77l-5.82 3.02L7 14.14 2 9.27l6.91-1.01L12 2z"], ...props })
+            Icon({ path: ["M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.53L12 17.77l-5.82 3.02L7 14.14 2 9.27l6.91-1.01L12 2z"], fill: 'currentColor', ...props })
         );
         const MapPin = (props) => (
             Icon({ path: ["M12 22s-8-4.5-8-11.8C4 4.5 7.8 1 12 1c4.2 0 8 3.5 8 9.2S12 22 12 22z", "M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"], ...props })
@@ -150,16 +111,38 @@
             Icon({ path: ["m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", "M9 22V12h6v10"], ...props })
         );
 
+        // --- Mock Data ---
+        const PLACEHOLDER_URL = "https://placehold.co/600x800/e7e5e4/a8a29e?text=TAPOLI+ITEM";
+
+        const PRODUCTS = [
+            { id: "TPL-001", name: "Artisanal Ceramic Vase", price: 75.00, category: "HOME", rating: 4.9, image: "https://images.unsplash.com/photo-1548483489-0268aa075af3?w=600&h=800&q=80", material: "Hand-thrown Clay", origin: "Kumasi" },
+            { id: "TPL-002", name: "Hand-Woven Sisal Basket", price: 35.00, category: "DECOR", rating: 4.5, image: "https://images.unsplash.com/photo-1540340050810-75d3112c3b2f?w=600&h=800&q=80", material: "Natural Sisal Fiber", origin: "Northern Region" },
+            { id: "TPL-003", name: "Akua'ba Doll Carving", price: 90.00, category: "ART", rating: 5.0, image: "https://images.unsplash.com/photo-1628172826477-849a623f95e8?w=600&h=800&q=80", material: "Sankofa Wood", origin: "Ashanti Region" },
+            { id: "TPL-004", name: "Shea Butter Soap Set", price: 25.00, category: "WELLNESS", rating: 4.7, image: "https://images.unsplash.com/photo-1628042460144-8d963321ef9a?w=600&h=800&q=80", material: "Organic Shea & Cocoa", origin: "Accra" },
+            { id: "TPL-005", name: "Indigo Tie-Dye Scarf", price: 55.00, category: "FASHION", rating: 4.8, image: "https://images.unsplash.com/photo-1558778832-73a7c64c728e?w=600&h=800&q=80", material: "Pure Cotton", origin: "Volta Region" },
+            { id: "TPL-006", name: "Kente Cloth Weave (Panel)", price: 180.00, category: "ART", rating: 5.0, image: "https://images.unsplash.com/photo-1606709923880-99896798031e?w=600&h=800&q=80", material: "Silk & Cotton", origin: "Bonwire" },
+        ];
+
+        const CATEGORIES = ["ALL", "HOME", "DECOR", "ART", "WELLNESS", "FASHION"];
+
+        // --- Utilities ---
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-GH', {
+                style: 'currency',
+                currency: 'GHS',
+                currencyDisplay: 'symbol'
+            }).format(amount).replace('GHS', '₵');
+        };
+
         const generateStarRating = (rating) => {
             const fullStars = Math.floor(rating);
             const stars = [];
             for (let i = 0; i < fullStars; i++) {
-                stars.push(createElement(Star, { key: `star-${i}`, size: 14, className: "text-tapoli-accent", fill: 'currentColor' }));
+                stars.push(React.createElement(Star, { key: `star-${i}`, size: 14, className: "text-tapoli-accent" }));
             }
             while (stars.length < 5) {
-                stars.push(createElement(Star, { key: `star-${stars.length}`, size: 14, className: "text-gray-300", fill: 'none', stroke: 'currentColor' }));
+                stars.push(React.createElement(Star, { key: `star-${stars.length}`, size: 14, className: "text-gray-300", fill: 'none', stroke: 'currentColor' }));
             }
-            // Returning the array directly as JSX children
             return stars;
         };
 
@@ -174,72 +157,69 @@
                 ghost: "bg-transparent text-tapoli-primary hover:bg-gray-100 shadow-none",
             };
 
-            return createElement('button', { 
+            return React.createElement('button', { 
                 className: `${baseStyle} ${variants[variant]} ${className}`, 
                 onClick: onClick, 
                 disabled: disabled,
                 ...props 
             }, 
-                Icon && createElement(Icon, { size: 16, fill: variant === 'primary' || variant === 'secondary' ? 'white' : 'none' }),
+                Icon && React.createElement(Icon, { size: 16 }),
                 children
             );
         };
 
         const ProductCard = ({ product, onViewDetails, onAddToCart }) => {
-            return (
-                <div className="tapoli-card bg-white rounded-xl shadow-soft overflow-hidden flex flex-col cursor-pointer">
-                    <div onClick={() => onViewDetails(product)} className="relative aspect-[3/4] overflow-hidden bg-stone-100">
-                        <img 
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
-                            onError={(e) => {
-                                // Fallback image if the actual URL fails
-                                e.target.onerror = null; 
-                                e.target.src = 'https://placehold.co/600x800/434674/ffffff?text=Image+Unavailable';
-                                e.target.className = "object-contain w-full h-full p-4 text-center text-sm font-semibold";
-                            }}
-                        />
-                        <div className="absolute top-3 right-3 p-1.5 bg-white rounded-full shadow-md text-sm font-semibold text-gray-700">
-                            {formatCurrency(product.price)}
-                        </div>
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                        <h3 
-                            onClick={() => onViewDetails(product)} 
-                            className="tapoli-title text-xl font-bold text-tapoli-primary hover:text-tapoli-accent transition-colors mb-2" 
-                        >
-                            {product.name}
-                        </h3>
-                        <div className="flex items-center gap-1 mb-3">
-                            {generateStarRating(product.rating)}
-                            <span className="text-xs text-gray-500 ml-1">{`(${product.rating})`}</span>
-                        </div>
-                        <Button
-                            variant="secondary"
-                            className="mt-auto py-2 text-xs uppercase tracking-wider"
-                            onClick={() => onAddToCart(product)}
-                            icon={ShoppingCart}
-                        >
-                            Add to Basket
-                        </Button>
-                    </div>
-                </div>
+            const [imageSrc, setImageSrc] = useState(product.image);
+            
+            const handleError = (e) => {
+                // Only change to placeholder if the current image is the original product image
+                if (e.target.src === product.image) {
+                    setImageSrc(PLACEHOLDER_URL);
+                    e.target.style.filter = "grayscale(100%)";
+                }
+            };
+            
+            return React.createElement('div', { className: "tapoli-card bg-white rounded-xl shadow-soft overflow-hidden flex flex-col cursor-pointer" },
+                React.createElement('div', { onClick: () => onViewDetails(product), className: "relative aspect-[3/4] overflow-hidden bg-stone-100" },
+                    React.createElement('img', {
+                        src: imageSrc,
+                        alt: product.name,
+                        className: "w-full h-full object-cover transition-transform duration-500 scale-100 group-hover:scale-105",
+                        onError: handleError
+                    }),
+                    React.createElement('div', { className: "absolute top-3 right-3 p-1.5 bg-white rounded-full shadow-md text-sm font-semibold text-gray-700" }, 
+                        formatCurrency(product.price)
+                    )
+                ),
+                React.createElement('div', { className: "p-4 flex flex-col flex-1" },
+                    React.createElement('h3', { 
+                        onClick: () => onViewDetails(product), 
+                        className: "tapoli-title text-xl font-bold text-tapoli-primary hover:text-tapoli-accent transition-colors mb-2" 
+                    }, product.name),
+                    React.createElement('div', { className: "flex items-center gap-1 mb-3" },
+                        ...generateStarRating(product.rating),
+                        React.createElement('span', { className: "text-xs text-gray-500 ml-1" }, `(${product.rating})`)
+                    ),
+                    React.createElement(Button, {
+                        variant: "secondary",
+                        className: "mt-auto py-2 text-xs uppercase tracking-wider",
+                        onClick: () => onAddToCart(product),
+                        icon: ShoppingCart
+                    }, "Add to Basket")
+                )
             );
         };
 
         const Toast = ({ show, message, onClose }) => {
             if (!show) return null;
-            return (
-                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-300 ease-out animate-fade-in">
-                    <div className="bg-tapoli-primary text-white px-6 py-3 rounded-full shadow-xl-soft flex items-center gap-3 min-w-[300px]">
-                        <ShoppingCart size={20} className="text-tapoli-accent" fill='white' />
-                        <p className="text-sm font-medium">{message}</p>
-                        <button onClick={onClose} className="text-gray-300 hover:text-white ml-auto">
-                            <X size={16} stroke='white' />
-                        </button>
-                    </div>
-                </div>
+            return React.createElement('div', { className: "fixed bottom-4 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-300 ease-out animate-fade-in" },
+                React.createElement('div', { className: "bg-tapoli-primary text-white px-6 py-3 rounded-full shadow-xl-soft flex items-center gap-3 min-w-[300px]" },
+                    React.createElement(ShoppingCart, { size: 20, className: "text-tapoli-accent" }),
+                    React.createElement('p', { className: "text-sm font-medium" }, message),
+                    React.createElement('button', { onClick: onClose, className: "text-gray-300 hover:text-white ml-auto" },
+                        React.createElement(X, { size: 16 })
+                    )
+                )
             );
         };
         
@@ -297,383 +277,448 @@
             // --- Layout Components ---
 
             const Navbar = () => (
-                <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-soft border-b border-gray-100">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-20">
-                            <div className="flex-shrink-0 cursor-pointer" onClick={() => setView('home')}>
-                                <span className="tapoli-title text-3xl font-bold text-tapoli-primary">Tapoli</span>
-                                <span className="text-sm text-tapoli-accent ml-1">GH</span>
-                            </div>
-                            <div className="hidden md:block">
-                                <div className="flex items-center space-x-4">
-                                    {CATEGORIES.slice(1).map(cat => (
-                                        <a 
-                                            key={cat}
-                                            href="#"
-                                            onClick={(e) => { e.preventDefault(); setSelectedCategory(cat); setView('home'); }}
-                                            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${selectedCategory === cat ? 'text-tapoli-accent bg-orange-50' : 'text-gray-700 hover:text-tapoli-accent hover:bg-gray-100'}`}
-                                        >
-                                            {cat}
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <button
-                                    className="p-2 rounded-full text-gray-600 hover:text-tapoli-accent hover:bg-gray-100 transition-colors relative"
-                                    onClick={() => setIsCartOpen(true)}
-                                    title="View Basket"
-                                >
-                                    <ShoppingCart size={24} />
-                                    {cartCount > 0 && 
-                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-tapoli-accent rounded-full border-2 border-white">{cartCount}</span>}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
+                React.createElement('nav', { className: "sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-soft border-b border-gray-100" },
+                    React.createElement('div', { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" },
+                        React.createElement('div', { className: "flex items-center justify-between h-20" },
+                            React.createElement('div', { className: "flex-shrink-0 cursor-pointer", onClick: () => setView('home') },
+                                React.createElement('span', { className: "tapoli-title text-3xl font-bold text-tapoli-primary" }, "Tapoli"),
+                                React.createElement('span', { className: "text-sm text-tapoli-accent ml-1" }, "GH")
+                            ),
+                            React.createElement('div', { className: "hidden md:block" },
+                                React.createElement('div', { className: "flex items-center space-x-4" },
+                                    CATEGORIES.slice(1).map(cat => (
+                                        React.createElement('a', {
+                                            key: cat,
+                                            href: "#",
+                                            onClick: (e) => { e.preventDefault(); setSelectedCategory(cat); setView('home'); },
+                                            className: `px-3 py-2 text-sm font-medium rounded-md transition-colors ${selectedCategory === cat ? 'text-tapoli-accent bg-orange-50' : 'text-gray-700 hover:text-tapoli-accent hover:bg-gray-100'}`
+                                        }, cat)
+                                    ))
+                                )
+                            ),
+                            React.createElement('div', { className: "flex items-center gap-4" },
+                                React.createElement('button', {
+                                    className: "p-2 rounded-full text-gray-600 hover:text-tapoli-accent hover:bg-gray-100 transition-colors",
+                                    onClick: () => setIsCartOpen(true),
+                                    title: "View Basket"
+                                },
+                                    React.createElement(ShoppingCart, { size: 24 }),
+                                    cartCount > 0 && 
+                                    React.createElement('span', { className: "absolute top-2 right-4 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-tapoli-accent rounded-full" }, cartCount)
+                                )
+                            )
+                        )
+                    )
+                )
             );
 
             const CartDrawer = () => (
-                <div className={`fixed inset-0 z-50 overflow-hidden ${isCartOpen ? '' : 'pointer-events-none'}`}>
-                    <div
-                        className={`absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0'}`}
-                        onClick={() => setIsCartOpen(false)}
-                    />
-                    <div className={`absolute inset-y-0 right-0 max-w-md w-full flex pl-10 transform transition-transform duration-300 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                        <div className="w-full flex flex-col h-full bg-white shadow-xl">
-                            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-stone-50">
-                                <h2 className="text-xl tapoli-title font-bold text-tapoli-primary">{`Shopping Basket (${cartCount})`}</h2>
-                                <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-tapoli-accent p-2">
-                                    <X size={24} />
-                                </button>
-                            </div>
-                            <div className="flex-1 overflow-y-auto p-6">
-                                {cart.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4 text-gray-500">
-                                        <ShoppingCart size={36} className="opacity-50" />
-                                        <p className="text-sm">Your basket is empty. Find your next treasure!</p>
-                                        <Button variant="ghost" onClick={() => setIsCartOpen(false)}>Browse Products</Button>
-                                    </div>
+                React.createElement('div', { className: `fixed inset-0 z-50 overflow-hidden ${isCartOpen ? '' : 'pointer-events-none'}` },
+                    React.createElement('div', {
+                        className: `absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0'}`,
+                        onClick: () => setIsCartOpen(false)
+                    }),
+                    React.createElement('div', { className: `absolute inset-y-0 right-0 max-w-md w-full flex pl-10 transform transition-transform duration-300 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}` },
+                        React.createElement('div', { className: "w-full flex flex-col h-full bg-white shadow-xl" },
+                            React.createElement('div', { className: "flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-stone-50" },
+                                React.createElement('h2', { className: "text-xl tapoli-title font-bold text-tapoli-primary" }, `Shopping Basket (${cartCount})`),
+                                React.createElement('button', { onClick: () => setIsCartOpen(false), className: "text-gray-400 hover:text-tapoli-accent p-2" },
+                                    React.createElement(X, { size: 24 })
+                                )
+                            ),
+                            React.createElement('div', { className: "flex-1 overflow-y-auto p-6" },
+                                cart.length === 0 ? (
+                                    React.createElement('div', { className: "h-full flex flex-col items-center justify-center text-center space-y-4 text-gray-500" },
+                                        React.createElement(ShoppingCart, { size: 36, className: "opacity-50" }),
+                                        React.createElement('p', { className: "text-sm" }, "Your basket is empty. Find your next treasure!"),
+                                        React.createElement(Button, { variant: "ghost", onClick: () => setIsCartOpen(false) }, "Browse Products")
+                                    )
                                 ) : (
-                                    <div className="space-y-4">
-                                        {cart.map(item => (
-                                            <div key={item.id} className="py-3 flex border-b border-dashed border-gray-100 last:border-b-0">
-                                                <div className="flex-shrink-0 w-20 h-20 bg-stone-100 rounded-lg overflow-hidden border border-gray-200">
-                                                    <img
-                                                        src={item.imageUrl}
-                                                        alt={item.name}
-                                                        className="object-cover w-full h-full"
-                                                        onError={(e) => {
-                                                            e.target.onerror = null; 
-                                                            e.target.src = 'https://placehold.co/80x80/434674/ffffff?text=X';
-                                                            e.target.className = "object-contain w-full h-full p-2 text-center text-xs font-semibold";
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="ml-4 flex-1 flex flex-col justify-between">
-                                                    <div className="flex justify-between items-start">
-                                                        <h3 className="text-sm font-semibold text-tapoli-primary hover:text-tapoli-accent">{item.name}</h3>
-                                                        <p className="text-sm font-medium text-gray-900">{formatCurrency(item.price * item.quantity)}</p>
-                                                    </div>
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        <div className="flex items-center space-x-2 border border-gray-200 rounded-lg">
-                                                            <button onClick={() => updateQuantity(item.id, -1)} className="p-1.5 text-gray-500 hover:text-tapoli-accent hover:bg-stone-50 rounded-l-lg text-sm transition-colors">–</button>
-                                                            <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
-                                                            <button onClick={() => updateQuantity(item.id, 1)} className="p-1.5 text-gray-500 hover:text-tapoli-accent hover:bg-stone-50 rounded-r-lg text-sm transition-colors">+</button>
-                                                        </div>
-                                                        <button type="button" onClick={() => removeFromCart(item.id)} className="text-xs font-medium text-red-500 hover:text-red-700">Remove</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            {cart.length > 0 &&
-                            <div className="border-t border-gray-200 px-6 py-6 bg-stone-50">
-                                <div className="flex justify-between text-base font-bold text-gray-900 mb-4">
-                                    <p>Total</p>
-                                    <p className="text-tapoli-accent text-xl">{formatCurrency(cartTotal)}</p>
-                                </div>
-                                <Button
-                                    variant="primary"
-                                    className="w-full py-3 text-lg font-semibold"
-                                    onClick={() => { setIsCartOpen(false); setView('checkout'); }}
-                                >
-                                    Checkout Securely
-                                </Button>
-                            </div>}
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const HeroVisual = () => (
-                <div className="relative mx-auto w-full max-w-lg shadow-xl-soft rounded-2xl overflow-hidden aspect-square bg-stone-100">
-                    <img 
-                        src='https://images.unsplash.com/photo-1594165620958-36a8369b76c8?q=80&w=800&h=800&fit=crop&auto=format'
-                        alt='Featured Handcrafted Goods'
-                        className="object-cover w-full h-full"
-                        onError={(e) => {
-                            e.target.onerror = null; 
-                            e.target.src = 'https://placehold.co/600x800/434674/ffffff?text=Image+Unavailable';
-                            e.target.className = "object-contain w-full h-full p-8 text-center text-sm font-semibold";
-                        }}
-                    />
-                </div>
+                                    React.createElement('div', { className: "space-y-4" },
+                                        cart.map(item => (
+                                            React.createElement('div', { key: item.id, className: "py-3 flex border-b border-dashed border-gray-100 last:border-b-0" },
+                                                React.createElement('div', { className: "flex-shrink-0 w-20 h-20 bg-stone-100 rounded-lg overflow-hidden border border-gray-200" },
+                                                    React.createElement('img', { 
+                                                        src: item.image, 
+                                                        alt: item.name, 
+                                                        className: "w-full h-full object-cover",
+                                                        onError: (e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_URL; }
+                                                    })
+                                                ),
+                                                React.createElement('div', { className: "ml-4 flex-1 flex flex-col justify-between" },
+                                                    React.createElement('div', { className: "flex justify-between items-start" },
+                                                        React.createElement('h3', { className: "text-sm font-semibold text-tapoli-primary hover:text-tapoli-accent" }, item.name),
+                                                        React.createElement('p', { className: "text-sm font-medium text-gray-900" }, formatCurrency(item.price * item.quantity))
+                                                    ),
+                                                    React.createElement('div', { className: "flex items-center justify-between mt-2" },
+                                                        React.createElement('div', { className: "flex items-center space-x-2 border border-gray-200 rounded-lg" },
+                                                            React.createElement('button', { onClick: () => updateQuantity(item.id, -1), className: "p-1.5 text-gray-500 hover:text-tapoli-accent hover:bg-stone-50 rounded-l-lg text-sm transition-colors" }, "–"),
+                                                            React.createElement('span', { className: "text-sm font-medium w-4 text-center" }, item.quantity),
+                                                            React.createElement('button', { onClick: () => updateQuantity(item.id, 1), className: "p-1.5 text-gray-500 hover:text-tapoli-accent hover:bg-stone-50 rounded-r-lg text-sm transition-colors" }, "+")
+                                                        ),
+                                                        React.createElement('button', { type: "button", onClick: () => removeFromCart(item.id), className: "text-xs font-medium text-red-500 hover:text-red-700" }, "Remove")
+                                                    )
+                                                )
+                                            )
+                                        ))
+                                    )
+                                )
+                            ),
+                            cart.length > 0 &&
+                            React.createElement('div', { className: "border-t border-gray-200 px-6 py-6 bg-stone-50" },
+                                React.createElement('div', { className: "flex justify-between text-base font-bold text-gray-900 mb-4" },
+                                    React.createElement('p', null, "Total"),
+                                    React.createElement('p', { className: "text-tapoli-accent text-xl" }, formatCurrency(cartTotal))
+                                ),
+                                React.createElement(Button, {
+                                    variant: "primary",
+                                    className: "w-full py-3 text-lg font-semibold",
+                                    onClick: () => { setIsCartOpen(false); setView('checkout'); },
+                                }, "Checkout Securely")
+                            )
+                        )
+                    )
+                )
             );
 
             const HeroSection = () => (
-                <div className="relative bg-stone-50 overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-32">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
-                            <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
-                                <p className="text-sm font-semibold uppercase tracking-wider text-tapoli-accent mb-3">The Art of Living</p>
-                                <h1 className="tapoli-title text-5xl sm:text-6xl font-extrabold tracking-tight text-tapoli-primary mb-6">
-                                    Handcrafted 
-                                    <span className="text-tapoli-accent"> Goods</span>
-                                    {" "}from Ghana.
-                                </h1>
-                                <p className="mt-4 text-lg text-gray-600 max-w-lg">Tapoli connects you directly with the artisans who create unique, sustainable, and soulful home decor, art, and fashion.</p>
-                                <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                                    <Button 
-                                        variant="primary" 
-                                        onClick={() => document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' })}
-                                        className="py-3.5 text-base"
-                                    >
-                                        Explore Collection
-                                    </Button>
-                                    <Button variant="secondary" onClick={() => setView('about')} className="py-3.5 text-base">Our Story</Button>
-                                </div>
-                            </div>
-                            <div className="mt-12 lg:mt-0 lg:col-span-6 relative">
-                                <HeroVisual />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                React.createElement('div', { className: "relative bg-stone-50 overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-32" },
+                    React.createElement('div', { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" },
+                        React.createElement('div', { className: "lg:grid lg:grid-cols-12 lg:gap-16 items-center" },
+                            React.createElement('div', { className: "sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left" },
+                                React.createElement('p', { className: "text-sm font-semibold uppercase tracking-wider text-tapoli-accent mb-3" }, "The Art of Living"),
+                                React.createElement('h1', { className: "tapoli-title text-5xl sm:text-6xl font-extrabold tracking-tight text-tapoli-primary mb-6" },
+                                    "Handcrafted ",
+                                    React.createElement('span', { className: "text-tapoli-accent" }, "Goods"),
+                                    " from Ghana."
+                                ),
+                                React.createElement('p', { className: "mt-4 text-lg text-gray-600 max-w-lg" }, "Tapoli connects you directly with the artisans who create unique, sustainable, and soulful home decor, art, and fashion."),
+                                React.createElement('div', { className: "mt-10 flex flex-col sm:flex-row gap-4" },
+                                    React.createElement(Button, { 
+                                        variant: "primary", 
+                                        onClick: () => document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' }),
+                                        className: "py-3.5 text-base"
+                                    }, "Explore Collection"),
+                                    React.createElement(Button, { variant: "secondary", onClick: () => setView('about'), className: "py-3.5 text-base" }, "Our Story")
+                                )
+                            ),
+                            React.createElement('div', { className: "mt-12 lg:mt-0 lg:col-span-6 relative" },
+                                React.createElement('div', { className: "relative mx-auto w-full max-w-lg shadow-xl-soft rounded-2xl overflow-hidden" },
+                                    React.createElement('img', {
+                                        className: "w-full object-cover aspect-square",
+                                        src: "https://images.unsplash.com/photo-1628172826477-849a623f95e8?q=80&w=800",
+                                        alt: "Hero product: Hand-carved doll",
+                                        onError: (e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_URL; }
+                                    })
+                                )
+                            )
+                        )
+                    )
+                )
             );
 
             const ProductListView = () => (
-                <div id="product-list" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
-                        <div>
-                            <h2 className="tapoli-title text-3xl font-bold text-tapoli-primary">Featured Items</h2>
-                            <p className="text-base text-gray-500">From the hands of Ghanaian masters to your home.</p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            {CATEGORIES.map(cat =>
-                                <button
-                                    key={cat}
-                                    onClick={() => setSelectedCategory(cat)}
-                                    className={`px-4 py-2 text-sm font-semibold rounded-full transition-all border ${
+                React.createElement('div', { id: "product-list", className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" },
+                    React.createElement('div', { className: "flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4" },
+                        React.createElement('div', null,
+                            React.createElement('h2', { className: "tapoli-title text-3xl font-bold text-tapoli-primary" }, "Featured Items"),
+                            React.createElement('p', { className: "text-base text-gray-500" }, "From the hands of Ghanaian masters to your home.")
+                        ),
+                        React.createElement('div', { className: "flex flex-wrap gap-2" },
+                            CATEGORIES.map(cat =>
+                                React.createElement('button', {
+                                    key: cat,
+                                    onClick: () => setSelectedCategory(cat),
+                                    className: `px-4 py-2 text-sm font-semibold rounded-full transition-all border ${
                                         selectedCategory === cat
                                             ? 'bg-tapoli-accent text-white border-tapoli-accent'
                                             : 'bg-white text-gray-700 border-gray-300 hover:bg-stone-50'
-                                    }`}
-                                >
-                                    {cat}
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    {filteredProducts.length === 0 ? (
-                        <div className="text-center py-20 bg-white rounded-xl shadow-inner border border-gray-100">
-                            <ShoppingCart size={40} className="mx-auto text-gray-300 mb-4" />
-                            <p className="text-lg font-semibold text-gray-700">No items in this category.</p>
-                            <Button variant="ghost" onClick={() => setSelectedCategory('ALL')} className="mt-4">View All Products</Button>
-                        </div>
+                                    }`
+                                }, cat)
+                            )
+                        )
+                    ),
+                    filteredProducts.length === 0 ? (
+                        React.createElement('div', { className: "text-center py-20 bg-white rounded-xl shadow-inner border border-gray-100" },
+                            React.createElement(ShoppingCart, { size: 40, className: "mx-auto text-gray-300 mb-4" }),
+                            React.createElement('p', { className: "text-lg font-semibold text-gray-700" }, "No items in this category."),
+                            React.createElement(Button, { variant: "ghost", onClick: () => setSelectedCategory('ALL'), className: "mt-4" }, "View All Products")
+                        )
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-                            {filteredProducts.map(product =>
-                                <ProductCard
-                                    key={product.id}
-                                    product={product}
-                                    onViewDetails={navigateToProduct}
-                                    onAddToCart={addToCart}
-                                />
-                            )}
-                        </div>
-                    )}
-                </div>
+                        React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8" },
+                            filteredProducts.map(product =>
+                                React.createElement(ProductCard, {
+                                    key: product.id,
+                                    product: product,
+                                    onViewDetails: navigateToProduct,
+                                    onAddToCart: addToCart
+                                })
+                            )
+                        )
+                    )
+                )
             );
             
             const ProductDetailView = () => {
                 const product = activeProduct;
                 if (!product) return null;
                 
-                return (
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                        <button onClick={() => setView('home')} className="text-sm text-gray-500 hover:text-tapoli-accent flex items-center mb-6">
-                            <ChevronRight className="rotate-180 mr-1" />
-                            Back to Shop
-                        </button>
-                        <div className="lg:grid lg:grid-cols-2 lg:gap-12 bg-white rounded-xl shadow-xl-soft p-6 md:p-10">
-                            <div className="lg:col-span-1">
-                                <div className="relative aspect-[3/4] bg-stone-100 rounded-lg overflow-hidden">
-                                    <img
-                                        src={product.imageUrl}
-                                        alt={product.name}
-                                        className="object-cover w-full h-full"
-                                        onError={(e) => {
-                                            e.target.onerror = null; 
-                                            e.target.src = 'https://placehold.co/600x800/434674/ffffff?text=Image+Unavailable';
-                                            e.target.className = "object-contain w-full h-full p-8 text-center text-lg font-semibold";
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            <div className="lg:col-span-1 mt-8 lg:mt-0 flex flex-col">
-                                <p className="text-xs font-semibold uppercase text-tapoli-accent mb-2">{product.category}</p>
-                                <h1 className="tapoli-title text-4xl font-extrabold text-tapoli-primary mb-3">{product.name}</h1>
-                                <div className="flex items-center gap-2 mb-6">
-                                    <div className="flex items-center">{generateStarRating(product.rating)}</div>
-                                    <span className="text-sm text-gray-500">{`${product.rating} Rating`}</span>
-                                </div>
-                                
-                                <div className="my-4 py-4 border-t border-b border-gray-100">
-                                    <span className="text-4xl font-bold text-tapoli-accent">{formatCurrency(product.price)}</span>
-                                </div>
+                const [imageSrc, setImageSrc] = useState(product.image);
 
-                                <div className="space-y-4 text-gray-700 mb-8">
-                                    <h2 className="text-lg font-semibold text-tapoli-primary">Details</h2>
-                                    <p className="text-base leading-relaxed">{`A genuine piece crafted from ${product.material}. This item embodies the spirit and skill of artisans from the ${product.origin} region.`}</p>
-                                    <ul className="text-sm space-y-2 pt-2">
-                                        <li className="flex items-center gap-3">
-                                            <Home size={16} className="text-tapoli-primary" />
-                                            <span>{`Category: ${product.category}`}</span>
-                                        </li>
-                                        <li className="flex items-center gap-3">
-                                            <MapPin size={16} className="text-tapoli-primary" />
-                                            <span>{`Origin: ${product.origin}`}</span>
-                                        </li>
-                                        <li className="flex items-center gap-3">
-                                            <Truck size={16} className="text-tapoli-primary" />
-                                            <span>Ships within 2-3 business days</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                <Button
-                                    variant="primary"
-                                    className="w-full py-3 text-lg font-semibold"
-                                    onClick={() => addToCart(product)}
-                                    icon={ShoppingCart}
-                                >
-                                    Add to Basket
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                const handleError = (e) => {
+                    if (e.target.src === product.image) {
+                        setImageSrc(PLACEHOLDER_URL);
+                    }
+                };
+
+                return React.createElement('div', { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" },
+                    React.createElement('button', { onClick: () => setView('home'), className: "text-sm text-gray-500 hover:text-tapoli-accent flex items-center mb-6" },
+                        React.createElement(ChevronRight, { className: "rotate-180 mr-1" }),
+                        "Back to Shop"
+                    ),
+                    React.createElement('div', { className: "lg:grid lg:grid-cols-2 lg:gap-12 bg-white rounded-xl shadow-xl-soft p-6 md:p-10" },
+                        React.createElement('div', { className: "lg:col-span-1" },
+                            React.createElement('div', { className: "relative aspect-[3/4] bg-stone-100 rounded-lg overflow-hidden" },
+                                React.createElement('img', { 
+                                    src: imageSrc, 
+                                    alt: product.name, 
+                                    className: "w-full h-full object-cover",
+                                    onError: handleError
+                                })
+                            )
+                        ),
+                        React.createElement('div', { className: "lg:col-span-1 mt-8 lg:mt-0 flex flex-col" },
+                            React.createElement('p', { className: "text-xs font-semibold uppercase text-tapoli-accent mb-2" }, product.category),
+                            React.createElement('h1', { className: "tapoli-title text-4xl font-extrabold text-tapoli-primary mb-3" }, product.name),
+                            React.createElement('div', { className: "flex items-center gap-2 mb-6" },
+                                React.createElement('div', { className: "flex items-center" }, ...generateStarRating(product.rating)),
+                                React.createElement('span', { className: "text-sm text-gray-500" }, `${product.rating} Rating`)
+                            ),
+                            
+                            React.createElement('div', { className: "my-4 py-4 border-t border-b border-gray-100" },
+                                React.createElement('span', { className: "text-4xl font-bold text-tapoli-accent" }, formatCurrency(product.price))
+                            ),
+
+                            React.createElement('div', { className: "space-y-4 text-gray-700 mb-8" },
+                                React.createElement('h2', { className: "text-lg font-semibold text-tapoli-primary" }, "Details"),
+                                React.createElement('p', { className: "text-base leading-relaxed" }, `A genuine piece crafted from ${product.material}. This item embodies the spirit and skill of artisans from the ${product.origin} region.`),
+                                React.createElement('ul', { className: "text-sm space-y-2 pt-2" },
+                                    React.createElement('li', { className: "flex items-center gap-3" }, React.createElement(MapPin, { size: 16, className: "text-tapoli-accent flex-shrink-0" }), React.createElement('span', null, `Origin: ${product.origin}`)),
+                                    React.createElement('li', { className: "flex items-center gap-3" }, React.createElement(Home, { size: 16, className: "text-tapoli-accent flex-shrink-0" }), React.createElement('span', null, `Material: ${product.material}`)),
+                                    React.createElement('li', { className: "flex items-center gap-3" }, React.createElement(Truck, { size: 16, className: "text-tapoli-accent flex-shrink-0" }), React.createElement('span', null, "Ships worldwide from Accra."))
+                                )
+                            ),
+
+                            React.createElement(Button, { 
+                                variant: "primary", 
+                                className: "py-4 text-lg font-bold w-full mt-auto", 
+                                icon: ShoppingCart,
+                                onClick: () => addToCart(product)
+                            }, "Add to Basket")
+                        )
+                    )
+                );
+            };
+
+            const CheckoutView = () => {
+                const [loading, setLoading] = useState(false);
+                const [step, setStep] = useState(1);
+            
+                const handlePlaceOrder = (e) => {
+                    e.preventDefault();
+                    if (cart.length === 0) return;
+                    setLoading(true);
+                    setTimeout(() => {
+                        setLoading(false);
+                        setStep(3);
+                        setCart([]);
+                    }, 2500);
+                };
+            
+                if (cart.length === 0 && step < 3) {
+                    return React.createElement('div', { className: "max-w-2xl mx-auto px-4 py-24 text-center" },
+                        React.createElement(ShoppingCart, { size: 48, className: "mx-auto text-gray-400 mb-4" }),
+                        React.createElement('h2', { className: "text-2xl font-bold text-tapoli-primary mb-2" }, "Your Basket is Empty"),
+                        React.createElement('p', { className: "text-gray-600 mb-6" }, "You need to add items before checking out."),
+                        React.createElement(Button, { onClick: () => setView('home') }, "Return to Shop")
+                    );
+                }
+            
+                if (step === 3) {
+                    return React.createElement('div', { className: "max-w-2xl mx-auto px-4 py-24 text-center" },
+                        React.createElement('div', { className: "inline-block p-4 bg-green-100 rounded-full mb-6 border-4 border-green-300" },
+                            React.createElement(Icon, { path: ["M20 6 9 17l-5-5"], stroke: "green", size: 36 })
+                        ),
+                        React.createElement('h2', { className: "tapoli-title text-3xl font-extrabold text-tapoli-primary mb-2" }, "Order Placed!"),
+                        React.createElement('p', { className: "text-gray-600 text-lg mb-8" }, "Your support goes directly to our artisan partners."),
+                        React.createElement(Button, { onClick: () => setView('home') }, "Continue Shopping")
+                    );
+                }
+            
+                return React.createElement('div', { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" },
+                    React.createElement('h1', { className: "tapoli-title text-4xl font-extrabold text-tapoli-primary mb-10 border-b border-gray-200 pb-3" }, "Secure Payment"),
+                    React.createElement('div', { className: "lg:grid lg:grid-cols-3 lg:gap-12" },
+                        
+                        // Checkout Form (Shipping & Payment)
+                        React.createElement('div', { className: "lg:col-span-2" },
+                            React.createElement('form', { onSubmit: handlePlaceOrder, className: "space-y-8" },
+                                React.createElement('div', { className: "space-y-6 bg-white p-6 rounded-xl shadow-soft border border-gray-100" },
+                                    React.createElement('h3', { className: "text-xl font-bold text-tapoli-primary flex items-center gap-3 border-b pb-3 mb-4" }, 
+                                        React.createElement(MapPin, { className: "text-tapoli-accent" }), "Shipping Information"
+                                    ),
+                                    React.createElement('div', { className: "grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2" },
+                                        React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "Full Name"), React.createElement('input', { type: "text", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" })),
+                                        React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "Email"), React.createElement('input', { type: "email", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" })),
+                                        React.createElement('div', { className: "sm:col-span-2" }, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "Address Line 1"), React.createElement('input', { type: "text", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" })),
+                                        React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "City"), React.createElement('input', { type: "text", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" })),
+                                        React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "Region"), React.createElement('input', { type: "text", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" }))
+                                    )
+                                ),
+
+                                React.createElement('div', { className: "space-y-6 bg-white p-6 rounded-xl shadow-soft border border-gray-100" },
+                                    React.createElement('h3', { className: "text-xl font-bold text-tapoli-primary flex items-center gap-3 border-b pb-3 mb-4" }, 
+                                        React.createElement(CreditCard, { className: "text-tapoli-accent" }), "Payment Details"
+                                    ),
+                                    React.createElement('div', { className: "space-y-4" },
+                                        React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "Card Number"), React.createElement('input', { type: "text", placeholder: "XXXX XXXX XXXX XXXX", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" })),
+                                        React.createElement('div', { className: "grid grid-cols-2 gap-4" },
+                                            React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "Expiration"), React.createElement('input', { type: "text", placeholder: "MM/YY", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" })),
+                                            React.createElement('div', null, React.createElement('label', { className: "block text-xs font-medium text-gray-700 mb-1" }, "CVC"), React.createElement('input', { type: "text", placeholder: "CVC", required: true, className: "w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:border-tapoli-accent focus:ring-tapoli-accent/50" }))
+                                        )
+                                    )
+                                )
+                            ),
+                            React.createElement(Button, { 
+                                variant: "primary", 
+                                type: "submit", 
+                                form: "checkout-form", // Note: The form needs an id to link this button
+                                disabled: loading || cart.length === 0, 
+                                className: "w-full mt-8 py-4 text-xl font-bold",
+                                onClick: handlePlaceOrder
+                            }, loading ? 'Processing Order...' : `Pay ${formatCurrency(cartTotal)}`)
+                        ),
+                        
+                        // Order Summary
+                        React.createElement('div', { className: "lg:col-span-1 mt-10 lg:mt-0" },
+                            React.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-6 shadow-soft sticky top-28" },
+                                React.createElement('h2', { className: "text-xl font-bold text-tapoli-primary mb-6 border-b border-gray-100 pb-3" }, "Review Order"),
+                                React.createElement('ul', { className: "space-y-4 border-b border-gray-100 pb-4 mb-4" },
+                                    cart.map((product) =>
+                                        React.createElement('li', { key: product.id, className: "flex justify-between items-center text-sm" },
+                                            React.createElement('div', { className: "text-gray-700" }, 
+                                                `${product.name} `,
+                                                React.createElement('span', { className: "text-xs text-gray-500" }, `(x${product.quantity})`)
+                                            ),
+                                            React.createElement('p', { className: "font-semibold" }, formatCurrency(product.price * product.quantity))
+                                        )
+                                    )
+                                ),
+                                React.createElement('div', { className: "space-y-2 text-sm" },
+                                    React.createElement('div', { className: "flex justify-between text-gray-600" }, React.createElement('p', null, "Subtotal"), React.createElement('p', null, formatCurrency(cartTotal))),
+                                    React.createElement('div', { className: "flex justify-between text-gray-600" }, React.createElement('p', null, "Shipping"), React.createElement('p', { className: "text-green-600 font-medium" }, "Free"))
+                                ),
+                                React.createElement('div', { className: "flex justify-between text-2xl font-extrabold text-tapoli-primary mt-4 pt-4 border-t border-gray-200" },
+                                    React.createElement('p', null, "Total"),
+                                    React.createElement('p', { className: "text-tapoli-accent" }, formatCurrency(cartTotal))
+                                )
+                            )
+                        )
+                    )
                 );
             };
 
             const AboutView = () => (
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <button onClick={() => setView('home')} className="text-sm text-gray-500 hover:text-tapoli-accent flex items-center mb-6">
-                        <ChevronRight className="rotate-180 mr-1" />
-                        Back to Shop
-                    </button>
-                    <div className="bg-white p-8 md:p-12 rounded-xl shadow-xl-soft space-y-8">
-                        <h1 className="tapoli-title text-4xl font-extrabold text-tapoli-primary">Our Story: The Soul of Tapoli</h1>
-                        
-                        <div className="space-y-4 text-gray-700 text-lg">
-                            <p>Tapoli is more than just a retail platform; it is a bridge connecting the world to the deep tradition and exquisite craftsmanship of Ghanaian artisans. We believe in ethical sourcing, sustainable practices, and fair trade, ensuring that every purchase directly supports the artists and their communities.</p>
-                            <p>The name 'Tapoli' itself is a nod to West African heritage, representing the tools and the process of creation. Our curated collection celebrates the rich cultural heritage, from the bold patterns of Kente cloth to the intricate carvings of the Ashanti region. Each item tells a story—a story of skill, legacy, and passion.</p>
-                            <p>Thank you for being part of this journey. By choosing Tapoli, you are choosing authenticity, quality, and empowerment.</p>
-                        </div>
-                        <div className="pt-4 border-t border-gray-100 flex justify-center">
-                            <Button variant="primary" onClick={() => setView('home')}>Start Shopping</Button>
-                        </div>
-                    </div>
-                </div>
+                React.createElement('div', { className: "max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16" },
+                    React.createElement('h1', { className: "tapoli-title text-4xl font-extrabold text-tapoli-primary mb-8 border-b border-tapoli-accent pb-3" }, "The Tapoli Promise"),
+                    
+                    React.createElement('div', { className: "mb-10 text-lg leading-relaxed text-gray-700" },
+                        React.createElement('p', { className: "mb-4" }, "The name 'Tapoli' evokes the traditional Ghanaian grinding stone and pestle—a symbol of craftsmanship, dedication, and the transformation of raw materials into something essential. Our mission is to be the bridge between talented Ghanaian artisans and the global marketplace."),
+                        React.createElement('p', null, "We ensure fair wages, ethical sourcing, and celebrate the rich cultural heritage woven into every item we offer. When you purchase from Tapoli, you support a lineage of mastery.")
+                    ),
+                    
+                    React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-8 text-center pt-4" },
+                        React.createElement('div', { className: "p-6 bg-white rounded-xl shadow-soft border border-gray-100" },
+                            React.createElement(MapPin, { size: 32, className: "mx-auto text-tapoli-accent mb-3" }),
+                            React.createElement('h3', { className: "font-semibold text-tapoli-primary text-lg" }, "Local Sourcing"),
+                            React.createElement('p', { className: "text-sm text-gray-500 mt-1" }, "All materials sourced within Ghana.")
+                        ),
+                        React.createElement('div', { className: "p-6 bg-white rounded-xl shadow-soft border border-gray-100" },
+                            React.createElement(Icon, { path: ["M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"], fill: 'currentColor', size: 32, className: "mx-auto text-tapoli-accent mb-3" }),
+                            React.createElement('h3', { className: "font-semibold text-tapoli-primary text-lg" }, "Fair Trade"),
+                            React.createElement('p', { className: "text-sm text-gray-500 mt-1" }, "Directly benefiting every artisan partner.")
+                        ),
+                        React.createElement('div', { className: "p-6 bg-white rounded-xl shadow-soft border border-gray-100" },
+                            React.createElement(Star, { size: 32, className: "mx-auto text-tapoli-accent mb-3" }),
+                            React.createElement('h3', { className: "font-semibold text-tapoli-primary text-lg" }, "Unique Quality"),
+                            React.createElement('p', { className: "text-sm text-gray-500 mt-1" }, "No two items are exactly the same.")
+                        )
+                    ),
+                    React.createElement(Button, { onClick: () => setView('home'), variant: "secondary", className: "mt-12 py-3.5" }, "Back to Collection")
+                )
             );
 
-            const CheckoutView = () => (
-                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <div className="bg-white p-8 md:p-12 rounded-xl shadow-xl-soft space-y-8">
-                        <h1 className="tapoli-title text-4xl font-extrabold text-tapoli-primary mb-6">Checkout (Simulated)</h1>
-                        
-                        <div className="border border-tapoli-accent/50 bg-tapoli-accent/5 p-4 rounded-lg flex items-center gap-4">
-                            <CreditCard size={28} className="text-tapoli-accent" />
-                            <p className="font-semibold text-gray-800">{`Order Total: ${formatCurrency(cartTotal)}`}</p>
-                        </div>
-                        
-                        <div className="space-y-4">
-                            <h2 className="text-xl font-semibold text-tapoli-primary">Order Summary</h2>
-                            {cart.map(item => (
-                                <div key={item.id} className="flex justify-between text-sm text-gray-600">
-                                    <span>{`${item.quantity} x ${item.name}`}</span>
-                                    <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
-                                </div>
-                            ))}
-                        </div>
-                        
-                        <div className="pt-6 border-t border-gray-100">
-                            <Button
-                                variant="primary"
-                                className="w-full py-3 text-lg font-semibold"
-                                disabled={cart.length === 0}
-                                onClick={() => {
-                                    setCart([]);
-                                    showToast("Order Placed! Thank you for supporting our artisans.");
-                                    setView('home');
-                                }}
-                            >
-                                Place Order Now
-                            </Button>
-                        </div>
-                        
-                        <Button
-                            variant="ghost"
-                            className="w-full"
-                            onClick={() => setView('home')}
-                        >
-                            Continue Shopping
-                        </Button>
-                    </div>
-                </div>
+            const Footer = () => (
+                React.createElement('footer', { className: "bg-tapoli-primary text-white pt-16 pb-8 font-sans mt-12" },
+                    React.createElement('div', { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" },
+                        React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-4 gap-12 mb-10 border-b border-tapoli-primary/50 pb-8" },
+                            React.createElement('div', { className: "col-span-2 md:col-span-1" },
+                                React.createElement('div', { className: "flex items-center gap-2 mb-4" },
+                                    React.createElement(Icon, { path: ["M13.8 2.1c.4.7-.6 3.1-2.1 3.2-1.5.1-4.7 2.1-5.7 4.2C5 12.5 4 14.7 4 16.5c0 3.3 3.1 5.5 7.9 5.5 4.7 0 7.9-2.2 7.9-5.5 0-1.7-1-3.9-2-5.2-1.1-2.1-4.3-4.1-5.7-4.2-1.5-.1-2.5-2.5-2.1-3.2Z"], size: 28, className: "text-tapoli-accent", fill: 'currentColor' }),
+                                    React.createElement('span', { className: "tapoli-title font-bold text-3xl" }, "Tapoli")
+                                ),
+                                React.createElement('p', { className: "text-gray-300 text-sm leading-relaxed" }, "Bringing the soul of Ghanaian craftsmanship to your home.")
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('h3', { className: "font-semibold text-white mb-4 uppercase tracking-wider text-sm" }, "Quick Links"),
+                                React.createElement('ul', { className: "space-y-2 text-gray-300 text-sm" },
+                                    React.createElement('li', { className: "hover:text-tapoli-accent cursor-pointer", onClick: () => setView('home') }, "Shop All"),
+                                    React.createElement('li', { className: "hover:text-tapoli-accent cursor-pointer", onClick: () => setView('about') }, "Our Story"),
+                                    React.createElement('li', { className: "hover:text-tapoli-accent cursor-pointer" }, "Artisans")
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('h3', { className: "font-semibold text-white mb-4 uppercase tracking-wider text-sm" }, "Customer Care"),
+                                React.createElement('ul', { className: "space-y-2 text-gray-300 text-sm" },
+                                    React.createElement('li', { className: "hover:text-tapoli-accent cursor-pointer" }, "Shipping"),
+                                    React.createElement('li', { className: "hover:text-tapoli-accent cursor-pointer" }, "Returns Policy"),
+                                    React.createElement('li', { className: "hover:text-tapoli-accent cursor-pointer" }, "Contact Us")
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('h3', { className: "font-semibold text-white mb-4 uppercase tracking-wider text-sm" }, "Follow Us"),
+                                React.createElement('p', { className: "text-gray-300 text-sm" }, "Stay connected with our latest collections and news.")
+                            )
+                        ),
+                        React.createElement('div', { className: "pt-4 flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs" },
+                            React.createElement('p', null, "© 2024 Tapoli Retail. All rights reserved."),
+                            React.createElement('p', { className: "mt-3 md:mt-0" }, "Handmade with intention.")
+                        )
+                    )
+                )
             );
-            
-            // --- Router Logic ---
 
+            // Conditional rendering of the main view
             let content;
-            if (view === 'product') {
-                content = <ProductDetailView />;
-            } else if (view === 'about') {
-                content = <AboutView />;
+            if (view === 'product' && activeProduct) {
+                content = React.createElement(ProductDetailView, null);
             } else if (view === 'checkout') {
-                content = <CheckoutView />;
+                content = React.createElement(CheckoutView, null);
+            } else if (view === 'about') {
+                content = React.createElement(AboutView, null);
             } else {
-                content = <Fragment>
-                    <HeroSection />
-                    <ProductListView />
-                </Fragment>;
+                content = React.createElement(React.Fragment, null, React.createElement(HeroSection, null), React.createElement(ProductListView, null));
             }
 
-            return (
-                <Fragment>
-                    <Navbar />
-                    {content}
-                    <CartDrawer />
-                    <Toast show={toast.show} message={toast.message} onClose={() => setToast({ show: false, message: '' })} />
-                </Fragment>
+            return React.createElement('div', { className: "min-h-screen flex flex-col font-sans bg-tapoli-bg" },
+                React.createElement(Navbar, null),
+                React.createElement('main', { className: "flex-grow" }, content),
+                React.createElement(Footer, null),
+                React.createElement(CartDrawer, null),
+                React.createElement(Toast, { show: toast.show, message: toast.message, onClose: () => setToast({...toast, show: false}) })
             );
         }
 
-        // Render the App using the modern React 18 API
-        function renderApp() {
-            const container = document.getElementById('root');
-            if (container) {
-                const root = ReactDOM.createRoot(container);
-                root.render(<App />);
-            } else {
-                console.error("Root element not found in DOM.");
-            }
-        }
-
-        window.addEventListener('load', renderApp);
+        ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
 
     </script>
 </body>
